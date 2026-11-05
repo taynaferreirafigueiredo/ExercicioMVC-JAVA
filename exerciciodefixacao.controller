@@ -1,0 +1,76 @@
+package exerciciodefixacao.controller;
+
+import exerciciodefixacao.model.Pessoa;
+import java.io.*;
+import java.util.ArrayList;
+
+public class PessoaRepository {
+
+    // Caminho do arquivo utilizado para armazenar os dados
+    private final String arquivoPessoas = "pessoas.csv";
+
+    // Método responsável por salvar a lista de pessoas no arquivo
+    public void salvarPessoas(ArrayList<Pessoa> pessoas) {
+
+        // Utiliza try-with-resources para fechar o arquivo automaticamente
+        try (BufferedWriter writer = new BufferedWriter(
+                new FileWriter(arquivoPessoas))) {
+
+            // Percorre a lista de pessoas
+            for (Pessoa pessoa : pessoas) {
+
+                // Converte a pessoa em texto e escreve no arquivo
+                writer.write(pessoa.toFileString());
+
+                writer.newLine();
+            }
+
+        } catch (IOException e) {
+
+            // Captura erros durante a gravação
+            System.out.println("Erro ao salvar pessoas: " + e.getMessage());
+        }
+    }
+
+    public ArrayList<Pessoa> carregarPessoas() {
+
+        // Cria uma lista para armazenar as pessoas carregadas
+        ArrayList<Pessoa> pessoas = new ArrayList<>();
+
+        // Tenta abrir e ler o arquivo
+        try (BufferedReader reader = new BufferedReader(
+                new FileReader(arquivoPessoas))) {
+
+            String linha;
+
+            // Lê o arquivo linha por linha
+            while ((linha = reader.readLine()) != null) {
+
+                try {
+                    // Converte a linha em um objeto Pessoa
+                    pessoas.add(Pessoa.fromFileString(linha));
+
+                } catch (IllegalArgumentException e) {
+
+                    // Trata registros com formato inválido
+                    System.out.println("Registro inválido: " + e.getMessage());
+                }
+            }
+
+        } catch (FileNotFoundException e) {
+
+            // Informa quando o arquivo ainda não existe
+            System.out.println(
+                "Arquivo de pessoas não encontrado. Será criado ao salvar novos cadastros."
+            );
+
+        } catch (IOException e) {
+
+            // Captura outros erros de leitura
+            System.out.println("Erro ao carregar pessoas: " + e.getMessage());
+        }
+
+        // Retorna a lista de pessoas carregadas
+        return pessoas;
+    }
+}
