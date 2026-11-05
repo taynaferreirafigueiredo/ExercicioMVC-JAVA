@@ -1,0 +1,249 @@
+
+package exerciciodefixacao.view;
+
+import exerciciodefixacao.controller.PessoaController;
+import exerciciodefixacao.model.Pessoa;
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+// Classe responsável pela interação com o usuário via console
+public class PessoaView {
+
+    // Instância do controlador
+    private PessoaController controller;
+
+    // Scanner usado para ler entradas do usuário
+    private Scanner scanner;
+
+    // Construtor que recebe o controller e inicializa o scanner
+    public PessoaView(PessoaController controller) {
+
+        this.controller = controller;
+
+        this.scanner = new Scanner(System.in);
+    }
+
+    // Método que exibe o menu principal
+    public void exibirMenu() {
+
+        int opcao;
+
+        do {
+
+            System.out.println("\n===== MENU =====");
+            System.out.println("1. Adicionar Pessoa");
+            System.out.println("2. Listar Pessoas");
+            System.out.println("3. Alterar Pessoa");
+            System.out.println("4. Excluir Pessoa");
+            System.out.println("0. Sair");
+
+            System.out.print("Escolha uma opção: ");
+
+            // Lê a opção do usuário
+            opcao = capturarInteiro();
+
+            // Executa a ação correspondente
+            switch (opcao) {
+
+                case 1:
+                    adicionarPessoa();
+                    break;
+
+                case 2:
+                    listarPessoas();
+                    break;
+
+                case 3:
+                    alterarPessoa();
+                    break;
+
+                case 4:
+                    excluirPessoa();
+                    break;
+
+                case 0:
+                    System.out.println("Encerrando o programa.");
+                    break;
+
+                default:
+                    System.out.println("Opção inválida. Tente novamente.");
+            }
+
+        } while (opcao != 0);
+    }
+
+    // Método para adicionar uma nova pessoa
+    private void adicionarPessoa() {
+
+        int id = capturarId();
+
+        String nome = capturarString("Nome da Pessoa: ");
+
+        int idade = capturarInteiro("Idade: ");
+
+        double altura = capturarDouble("Altura: ");
+
+        if (id <= 0 || nome.trim().isEmpty() || idade < 0 || altura <= 0) {
+            System.out.println("Dados inválidos. Verifique as informações.");
+            return;
+        }
+
+        controller.adicionarPessoa(id, nome, idade, altura);
+
+        System.out.println("Pessoa adicionada com sucesso!");
+    }
+
+    // Exibe todas as pessoas cadastradas
+    private void listarPessoas() {
+
+        if (controller.listarPessoas().isEmpty()) {
+
+            System.out.println("Nenhuma pessoa cadastrada.");
+
+        } else {
+
+            for (Pessoa pessoa : controller.listarPessoas()) {
+
+                System.out.println(
+                    "ID: " + pessoa.getId()
+                    + ", Nome: " + pessoa.getNome()
+                    + ", Idade: " + pessoa.getIdade()
+                    + ", Altura: " + pessoa.getAltura()
+                );
+            }
+        }
+    }
+
+    // Permite alterar uma pessoa existente
+    private void alterarPessoa() {
+
+        int id = capturarId();
+
+        String novoNome = capturarString("Novo Nome: ");
+
+        int novaIdade = capturarInteiro("Nova Idade: ");
+
+        double novaAltura = capturarDouble("Nova Altura: ");
+
+        if (novoNome.trim().isEmpty() || novaIdade < 0 || novaAltura <= 0) {
+            System.out.println("Dados inválidos. Verifique as informações.");
+            return;
+        }
+
+        if (controller.alterarPessoa(id, novoNome, novaIdade, novaAltura)) {
+
+            System.out.println("Pessoa alterada com sucesso!");
+
+        } else {
+
+            System.out.println("Pessoa com ID " + id + " não encontrada.");
+        }
+    }
+
+    // Permite excluir uma pessoa existente
+    private void excluirPessoa() {
+
+        int id = capturarId();
+
+        if (controller.excluirPessoa(id)) {
+
+            System.out.println("Pessoa excluída com sucesso!");
+
+        } else {
+
+            System.out.println("Pessoa com ID " + id + " não encontrada.");
+        }
+    }
+
+    // Captura o ID da pessoa
+    private int capturarId() {
+
+        return capturarInteiro("ID da Pessoa: ");
+    }
+
+    // Captura um número inteiro sem mensagem
+    private int capturarInteiro() {
+
+        return capturarInteiro(null);
+    }
+
+    // Captura um número inteiro com tratamento de erro
+    private int capturarInteiro(String mensagem) {
+
+        int valor = 0;
+
+        boolean valido;
+
+        do {
+
+            try {
+
+                if (mensagem != null) {
+                    System.out.print(mensagem);
+                }
+
+                valor = scanner.nextInt();
+
+                valido = true;
+
+            } catch (InputMismatchException e) {
+
+                System.out.println(
+                    "Entrada inválida. Por favor, insira um número inteiro."
+                );
+
+                valido = false;
+
+                scanner.nextLine();
+            }
+
+        } while (!valido);
+
+        scanner.nextLine();
+
+        return valor;
+    }
+
+    // Captura um número decimal com tratamento de erro
+    private double capturarDouble(String mensagem) {
+
+        double valor = 0.0;
+
+        boolean valido;
+
+        do {
+
+            try {
+
+                System.out.print(mensagem);
+
+                valor = scanner.nextDouble();
+
+                valido = true;
+
+            } catch (InputMismatchException e) {
+
+                System.out.println(
+                    "Entrada inválida. Por favor, insira um número decimal."
+                );
+
+                valido = false;
+
+                scanner.nextLine();
+            }
+
+        } while (!valido);
+
+        scanner.nextLine();
+
+        return valor;
+    }
+
+    // Captura uma string após exibir uma mensagem
+    private String capturarString(String mensagem) {
+
+        System.out.print(mensagem);
+
+        return scanner.nextLine();
+    }
+}
